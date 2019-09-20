@@ -1,0 +1,12 @@
+<aura:component implements="force:hasRecordId,flexipage:availableForAllPageTypes" >
+    <aura:attribute name="errMsg" type="string"/>
+    <div class="slds-notify slds-notify_alert slds-theme_alert-texture slds-theme_error" role="alert">
+        <span class="slds-assistive-text">error</span>
+        <lightning:icon iconName="utility:error" alternativeText="Error!" variant="error"/>
+        <h2>
+            <div aria-label="" class="slds-grow slds-cell-wrap">
+            {!v.errMsg}
+            </div>
+        </h2>
+    </div>
+</aura:component>

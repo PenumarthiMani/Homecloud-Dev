@@ -1,0 +1,3 @@
+<design:component>
+	<design:attribute name="recordtype" label="Record Type" description="Enter Record Type" />
+</design:component>

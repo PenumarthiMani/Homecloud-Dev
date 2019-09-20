@@ -1,0 +1,47 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access="global" controller="TestStandardController">
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="recordId" type="String"/> 
+    <aura:attribute name="QuoteRecordType" type="String"/> 
+    <aura:attribute name="today" type="Date" default="" />
+     <aura:attribute name="isError" type="Boolean" default="false" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    <aura:attribute name="connection" type="Object"/>
+    <aura:attribute name="simpleconnection" type="Object"/>
+     <aura:attribute name="allfieds" type="TestStandardController.FieldSetDetails" />
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <force:recordData aura:id="connectionRecordLoader"
+                      recordId="{!v.recordId}"
+                      fields="Name,Division__c,Community__c,Homebuyer__c,Estimated_Close_Date__c"
+                      targetRecord="{!v.connection}"
+                      targetFields="{!v.simpleconnection}"
+                      recordUpdated="{!c.load}"/>
+    <lightning:card class="slds-text-heading_small"  title="New Scenario">
+        <h3 class="slds-section-title--divider">Scenario Information</h3>
+        <div class="slds-p-around_medium">
+            <lightning:recordEditForm aura:id="editForm" objectApiName="Scenario__c" recordTypeId="{!v.QuoteRecordType}" onsubmit="{!c.onSubmit}" onsuccess="{!c.handleSuccess}" onerror="{!c.errorInformation}">
+                <lightning:messages />
+               
+                <lightning:layout multipleRows="true">  
+                <aura:iteration  items="{!v.allfieds}" var="fii">
+                    <lightning:layoutItem  size="6">
+                        <lightning:inputField fieldName="{!fii.Path}" value="{!fii.PathValue}" disabled="{!fii.PathValue != ''}" required="{!or(fii.isRequired,fii.DbRequired)}" />
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout>                
+                <lightning:layout horizontalAlign="center" class="slds-m-top_large">
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel" type="text" onclick="{!c.handleCancel}"/>
+                    <lightning:button variant="brand" label="Create" title="Create" type="submit" disabled="{!v.Spinner}"/>
+                </lightning:layout>
+            </lightning:recordEditForm>
+        </div>
+    </lightning:card>
+</aura:component>

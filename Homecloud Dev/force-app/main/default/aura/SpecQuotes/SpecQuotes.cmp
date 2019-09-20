@@ -1,0 +1,142 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes" access="global" Controller="SpecQuotesListView">
+    <aura:attribute name="Communities" type="Object[]"/>
+    <aura:attribute name="SelectedCommunity" type="String"/>
+    <aura:attribute name="Division" type="Object[]"/>
+    <aura:attribute name="SelectedDivision" type="String"/>
+    <aura:attribute name="StatusValues" type="Object[]"/> 
+    <aura:attribute name="SelectedStatus" type="String"/>
+    <aura:handler name="lookupEvent" event="c:lookupEvent" action="{!c.lookupEvent}"/>
+    <aura:attribute name="SpecQuotes" type="Object[]"/>
+    <aura:attribute name="DivisionId" type="String"/>
+    <aura:attribute name="CommunityId" type="String"/>
+    <aura:attribute name = "isOpen" type="boolean" default="false"/>
+    <aura:handler name = "init" value="{!this}" action="{!c.doinit}"/>
+    <aura:attribute name="NewSpec" type="Scenario__c" default="{'sobjectType':'Scenario__c', 'Stage__c':''}"/>
+    <div class="slds-page-header" role="banner">
+        <div class="slds-grid">
+            <div class="slds-col slds-has-flexi-truncate">
+                <div class="slds-media slds-media--center slds-no-space slds-grow">
+                    <div class="slds-media__figure">
+                        <span class="slds-icon__container slds-icon-standard-event">
+                            <span class="slds-assistive-text">Inventory Home</span>
+                        </span>
+                    </div>
+                    <div class="slds-media__body">
+                        <p class="slds-text-heading--label slds-truncate">Inventory Home</p>
+                        <h1 class="slds-page-header__title slds-m-right--small slds-truncate slds-align-middle" title="List View">List View</h1>
+                    </div>
+                </div>
+            </div>
+            <div class="slds-col slds-no-flex slds-grid slds-align-top slds-p-bottom_xx-small">
+                <div class="slds-button-group" role="group">
+                    <lightning:button variant="neutral" label="New Inventory Home" title="New Inventory Home" onclick="{!c.openModel}"/>
+                </div>
+            </div>
+        </div>
+        <div class="slds-grid slds-grid--pull-padded slds-grid_align-center">
+            <div class="slds-col--padded">
+                <Span>
+                    <lightning:select value="{!v.SelectedDivision}" label="Division" onchange="{!c.Divisionfilter}">       
+                        <option value="">Choose one...</option>
+                        <aura:iteration items="{!v.Division}" var="item">
+                            <option value="{!item.labelval}">{!item.selectedVal}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </Span>
+            </div>
+            <div class="slds-col--padded">
+                <Span>
+                    <lightning:select value="{!v.SelectedCommunity}" label="Community">       
+                        <option value="">Choose one...</option>
+                        <aura:iteration items="{!v.Communities}" var="item">
+                            <option value="{!item.labelval}">{!item.selectedVal}</option>
+                        </aura:iteration>
+                    </lightning:select>
+                </Span>
+            </div>          
+            <div class="slds-col--padded">
+                <Span><br/><lightning:button class="btnWidth" variant="brand" label="Search" title="Search" onclick="{!c.doSearch}"/></Span>
+            </div>
+        </div>
+    </div>   
+    <table class="slds-table slds-table--bordered slds-max-medium-table--stacked-horizontal">
+        <thead>
+            <tr class="slds-text-heading--label ">
+                <th class="" scope="col">Inventory Number</th>
+                <th class="" scope="col">Division</th>
+                <th class="" scope="col">Community</th>
+                <th class="" scope="col">Status</th>
+                <th class="slds-is-sortable" scope="col">Homesite</th>
+                <th class="slds-is-sortable" scope="col">Model</th>
+                <th class="slds-is-sortable" scope="col">Net Amount</th>
+            </tr>  
+        </thead>
+        <tbody>
+            <aura:if isTrue="{!not(empty(v.SpecQuotes))}">
+                <aura:iteration items="{!v.SpecQuotes}" var="Qt">
+                    <tr class="slds-hint-parent">
+                        <td class="" data-label="Spec Number" >
+                            <a href="{! '/lightning/r/sObject/'+Qt.Id+'/view'}">{!Qt.Name}</a>
+                        </td>
+                        <td class="" data-label="Spec Name" >
+                            <a href="{! '/lightning/r/sObject/'+Qt.Division__c+'/view'}">{!Qt.Division__r.Name}</a>
+                        </td>
+                        <td class="" data-label="Spec Name" >
+                            <a href="{! '/lightning/r/sObject/'+Qt.Community__c+'/view'}">{!Qt.Community__r.Name}</a>
+                        </td>
+                        <td data-label="Stage">
+                            <ui:outputText value="{!Qt.Status__c}"/>
+                        </td>
+                        <td data-label="Lot">
+                            <a href="{! '/lightning/r/sObject/'+Qt.Lot__c+'/view'}">{!Qt.Lot__r.Name}</a>
+                        </td>
+                        <td data-label="Model">
+                            <a href="{! '/lightning/r/sObject/'+Qt.Model__c+'/view'}">{!Qt.Model__r.Name}</a>
+                        </td>
+                        <td data-label="Net Amount">
+                            <ui:outputCurrency value="{!Qt.Net_Amount__c}"/>
+                        </td>
+                    </tr>
+                </aura:iteration>
+                <aura:set attribute="else">
+                    <tr class="slds-hint-parent"><td colspan="7" scope="col" style="text-align:center; font-size:14px; font-weight: bold;">No records to display.</td></tr>
+                </aura:set>
+            </aura:if>    
+        </tbody>
+    </table>
+    <aura:if isTrue="{!v.isOpen}">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Inventory Home</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                    <div class="slds-form" role="list">
+                        <div class="slds-grid slds-gutters_small">
+                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                <label class="slds-form-element__label" for="division">
+                                    <abbr class="slds-required" title="required">* </abbr>
+                                    Division
+                                </label>
+                                <c:lookupReusableChild sobjectType="Division__c" queryFields="Id,Name"
+                                                       searchFilter1="Name" searchFilter2="" searchFilter3="" filter1="Active__c" filter1value="True" iconName="custom:custom7" />
+                            </div>
+                            <div class="slds-col slds-has-flexi-truncate" role="listitem">
+                                <label class="slds-form-element__label" for="community">
+                                    <abbr class="slds-required" title="required">*</abbr>Community
+                                </label>
+                                <c:lookupReusableChild aura:id="communityId" sobjectType="Community__c" queryFields="Id, Name, Division__c"
+                                                       searchFilter1="Name" searchFilter2="" searchFilter3="" filter1="Active__c" filter1value="True" filter2="Division__c" filter2value="{!v.DivisionId}" iconName="custom:custom8"/>
+                            </div>
+                        </div> 
+                    </div>   
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral" label="Create" title="Create" onclick="{!c.InsertSpec}"/>
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.closeModel}"/>
+                </footer>
+            </div>
+        </section> 
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </aura:if> 
+</aura:component>

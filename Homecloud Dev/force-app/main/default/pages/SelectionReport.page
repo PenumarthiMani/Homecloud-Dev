@@ -1,0 +1,110 @@
+<apex:page controller="SelectionReportController" renderAs="pdf">
+   <title>{!Quote.Name}</title>
+   
+   <div align="left">
+  <apex:image value="{!$Resource.PremierNewLogo}" style="vertical-align:right"/>
+  </div>
+   
+   <div align="left" style="font-size:0.9em">
+       <h4>Division: {!Quote.Division__r.Name}</h4>
+       <h4>Community: {!Quote.Community__r.Name}</h4>       
+       <h4>Lot Number: {!quote.Lot__r.Name}</h4>
+       <h4>Scenario Number: {!quote.Name}</h4>
+       <h4>Model: {!quote.Model__r.Name}</h4>
+       <h4>Buyer: {!quote.Homebuyer__r.Name}</h4>
+       <h4>Address: {!quote.Lot__r.Street__c}, {!quote.Lot__r.City__c}, {!quote.Lot__r.State__c}, {!quote.Lot__r.Postal_Code__c}</h4>
+       
+       
+   </div>
+   <table style="width:100%; table-layout: fixed; border-collapse: separate; border-spacing: 0px 40px; font-size:0.8em; border-top-style:solid; border-bottom-style:solid;" cellpadding="0" cellspacing="0">
+    <tr style="border-bottom-style:solid; height:30px; text-align: center;" >
+       <th style="width:45%">Name</th>
+       <th style="width:10%">Catalog Code</th>
+       <th style="width:5%">Qty</th>
+       <th style="width:15%">Unit Price</th>
+       <th style="width:15%">Net Amount</th>
+    </tr> 
+    <apex:repeat value="{!innerList}" var="ammend">
+        <tr style="border-spacing: 0px 40px; border-top-style:solid; border-bottom-style:solid; width:100%; height:15px;">
+           <td colspan="5" style="border-spacing: 0px 40px; border-top-style:solid; width:100%; font-weight: bold;">({!ammend.AmmendaSeqNumber})</td>
+        </tr>
+        <tr style="border-bottom-style:solid; width:100%; height:15px;">
+           <td colspan="5"></td>
+        </tr>
+        <apex:repeat value="{!ammend.quoteLines}" var="ql">
+            <tr style="width:100%;">
+                <td style="width:45%;">
+                    <apex:outputtext value="{!ql.Catalog__r.Name}"/><br/>
+                </td>
+                <td style="width:10%;">{!ql.CatalogCode__c}</td>
+                <td style="width:5%; text-align: center;">{!ql.Quantity__c}</td>
+                <td style="width:15%; text-align: right;">
+                   <apex:outputText value="{0, number, currency}">
+                       <apex:param value="{!ql.UnitPrice__c}"/>
+                   </apex:outputText> 
+                </td>
+                <td style="width:15%; text-align: right;">
+                   <apex:outputText value="{0, number, currency}">
+                       <apex:param value="{!ql.NetAmount__c}"/>
+                   </apex:outputText> 
+                </td>
+            </tr>              
+        </apex:repeat>
+    </apex:repeat>
+    <tr><td colspan="5"><br/></td></tr>
+    <!--<tr style="width:100%">
+       <td colspan="4" style="font-weight: bold; text-align: right;width:85%;">Sub Total</td>
+       <td style="font-weight: bold; text-align: right; width:15%;">
+          <apex:outputText value="{0, number, currency}">
+              <apex:param value="{!if(quote.Options_Total__c != null, quote.Options_Total__c, 0)}"/>
+          </apex:outputText>
+       </td>
+    </tr> -->
+    <tr style="width:100%">
+       <td colspan="4" style="font-weight: bold; text-align: right;width:85%;">Homesite Premium</td>
+       <td style="font-weight: bold; text-align: right; width:15%;">
+           <apex:outputText value="{0, number, currency}">
+              <apex:param value="{!if(quote.LotPremium__c != null, quote.LotPremium__c, 0)}"/>
+           </apex:outputText> 
+       </td>
+    </tr> 
+    <tr style="width:100%">
+       <td colspan="4" style="font-weight: bold; text-align: right;width:85%;">Base Price</td>
+       <td style="font-weight: bold; text-align: right; width:15%;">
+           <apex:outputText value="{0, number, currency}">
+               <apex:param value="{!if(quote.BasePrice__c != null, quote.BasePrice__c, 0)}"/>
+           </apex:outputText>
+       </td>
+    </tr> 
+    <tr style="width:100%">
+       <td colspan="4" style="font-weight: bold; text-align: right;width:85%;">Option Total</td>
+       <td style="font-weight: bold; text-align: right; width:15%;">
+           <apex:outputText value="{0, number, currency}">
+               <apex:param value="{!if(quote.Options_Total__c != null, quote.Options_Total__c, 0)}"/>
+           </apex:outputText>
+       </td>
+    </tr> 
+    <tr style="width:100%">
+       <td colspan="4" style="font-weight: bold; text-align: right; width:85%;">Incentive Given</td>
+       <td style="font-weight: bold; text-align: right; width:15%;">
+           <apex:outputText value="{0, number, currency}">
+               <apex:param value="{!if(quote.DiscountAmount__c != null, quote.DiscountAmount__c + quote.Total_Incentive_Amount__c, 0)}"/>
+           </apex:outputText> 
+       </td>
+    </tr>  
+    <tr style="width:100%">
+       <td colspan="4" style="font-weight: bold; text-align: right; width:85%;">Total Purchase Price</td>
+       <td style="font-weight: bold; text-align: right; width:15%;">
+           <apex:outputText value="{0, number, currency}">
+               <apex:param value="{!if(quote.Net_Amount__c != null, quote.Net_Amount__c, 0)}"/>
+           </apex:outputText>
+       </td>
+     </tr>
+    </table>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <br/>
+    <p style="text-align: justify; font-size:0.8em;">This system-generated <span style="font-style: italic;">Proposal</span> is provided to a prospective buyer and/or its Broker/Agent outside of and not made a part of the Purchase Agreement: (1) all information as of the date indicated remains subject to change at any time without notice or obligation; and (2)  is for illustrative and informational purposes <u>only</u> for preliminary discussions for prospective buyer’s convenience. No guarantee or representation is made or implied as to availability, manufacturer, style, size, color, number, pricing and other factors installed in the completed home and/or subject to applicable incentives (if any) affecting pricing, all of which Seller reserves the right to modify. Refer to the <u>final</u> executed: Purchase Agreement and its attached Addenda (inclusive of any post-purchase amendments thereto) and the specific Community’s Standard Features List for complete details. Equal Housing Builder.</p>
+</apex:page>

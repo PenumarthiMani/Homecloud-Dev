@@ -1,0 +1,52 @@
+<aura:component controller='RegCardHelper' implements="force:appHostable,force:hasSObjectName,lightning:actionOverride,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickActionWithoutHeader" access='global'>
+    <aura:attribute name="today" type="Date" />
+    <aura:attribute name="allfieds" type="List" />
+    <aura:attribute name="datefieds" type="List" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    
+    <aura:attribute name="simpleRecord" type="Object"/>
+    <aura:attribute name="record" type="String"/>
+    <aura:attribute name="error" type="String"/>
+    <aura:attribute name="showSpinner" type="boolean" default="true"/>   
+    
+    <force:recordData aura:id="forceRecord"
+                      recordId="{!v.recordId}"
+                      layoutType="FULL"
+                      targetRecord="{!v.record}"
+                      targetFields="{!v.simpleRecord}"
+                      fields="Id, Name,Date__c,Status__c"/>
+    
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+    <aura:if isTrue="{!v.showSpinner}">
+        <lightning:spinner alternativeText="Loading" size="medium" />
+    </aura:if>
+    
+    <div aura:id="showForm" class="slds-hide">
+        <lightning:recordEditForm aura:id="recordEditForm"  
+                                  objectApiName="Connection__c" 
+                                  recordId="{!v.recordId}" 
+                                  onsubmit="{!c.onsubmitaction}"
+                                  onsuccess="{!c.handleSuccess}">
+            
+            
+            <!-- the messages component is for error messages -->
+            <lightning:messages />
+            <lightning:card  title="Reg Card"  class="slds-align_absolute-center">
+            </lightning:card>
+            <h3 class="slds-section-title--divider">Reg Card Information</h3>
+            <lightning:layout multipleRows="true">  
+                <aura:iteration  items="{!v.allfieds}" var="fii">
+                    <lightning:layoutItem  size="6">
+                            <lightning:inputField fieldName="{!fii}" />
+                    </lightning:layoutItem>
+                </aura:iteration>
+            </lightning:layout> <div class="slds-m-top_medium slds-align_absolute-center" style="padding-top:2%;padding-bottom:2%">
+            <lightning:button class="slds-m-top_small " type="submit" label="Save" />
+            <lightning:button class="slds-m-top_small " label="Cancel"  onclick="{! c.cancel}" />
+            </div>
+            
+        </lightning:recordEditForm>
+        <lightning:navigation aura:id="navService"/>
+    </div>
+    
+</aura:component>

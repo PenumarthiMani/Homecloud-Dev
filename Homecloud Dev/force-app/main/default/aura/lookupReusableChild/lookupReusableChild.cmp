@@ -1,0 +1,66 @@
+<aura:component controller="InputLookupReusableClass" implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    
+    <aura:attribute name="sobjectType" type="String" default="" description="object API dynamic"/>
+    <aura:attribute name="queryFields" type="String" default="" required="true" description=""/>
+    <aura:attribute name="searchValue" type="String" default="" description="used to search the object"/>
+    <aura:attribute name="searchFilter1" type="String" default="" description="used to search the object"/>
+    <aura:attribute name="searchFilter2" type="String" default="" description="used to search the object"/>
+    <aura:attribute name="searchFilter3" type="String" default="" description="used to search the object"/>
+    <aura:attribute name="filter1" type="String" default="" description="filter name on the object"/>
+    <aura:attribute name="filter1value" type="String" default="" description="filter value  on the object"/>
+    <aura:attribute name="filter2" type="String" default="" description="filter name on the object"/>
+    <aura:attribute name="filter2value" type="String" default="" description="filter value  on the object"/>
+    <aura:attribute name="filter3" type="String" default="" description="filter name on the object"/>
+    <aura:attribute name="filter3value" type="String" default="" description="filter value  on the object"/>
+    <aura:attribute name="isDefault" type="boolean" default="false" description="used to show limited records on click"/>
+    <aura:attribute name="searchResults" type="Object[]" default="" />
+    <aura:attribute name="enableLookup" type="boolean" default="true"/>
+    <aura:attribute name="precordId" type="String" default="" description="used to get page recordid to autopopulate value"/>
+    <aura:attribute name="psobjname" type="String" default="" description="used to get page sobject to autopopulate value"/>
+    <aura:attribute name="isIcon" type="boolean" default="true"/>
+    <aura:attribute name="iconName" type="String" default=''/>
+    <aura:registerEvent name="lookupEvent" type="c:lookupEvent"/>
+    <aura:registerEvent name="defaultuser" type="c:defaultuser"/>
+    <aura:handler event="c:refreshchildLookup" action="{!c.clearSearch1}"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <div class="slds-form-element slds-size--1-of-1 slds-medium-size--1-of-1 slds-large-size--1-of-1">
+        <div id="lookupDiv" class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right">
+            <div aura:id="lookup-pill" class="slds-pill-container slds-hide">
+                <span class="slds-pill slds-medium-size--1-of-1 slds-large-size--1-of-1">
+                    <span class="slds-pill__label">
+                        <aura:if isTrue="{!v.isIcon}">    
+                            <lightning:icon iconName="{!v.iconName}" size='small' /> &nbsp;
+                        </aura:if>
+                        {!v.searchValue}  
+                    </span>
+                    <button aura:id="lookup-pillclose" class="slds-button slds-button--icon slds-pill__remove" onclick="{!c.clearSearch}"> 
+                        <!--<c:svgIcon class="slds-button__icon" svgPath="{!$Resource.SLDS + '/assets/icons/utility-sprite/svg/symbols.svg#close'}" size="small"/>-->
+                        <lightning:icon iconName="utility:close" />
+                        <span class="slds-assistive-text">Remove</span>
+                    </button>  
+                </span>
+            </div>
+            
+            <div aura:id="lookupField" class="slds-show">
+                <!--<c:svgIcon class="slds-input__icon slds-icon-text-default" svgPath="/resource/SLDS/assets/icons/utility-sprite/svg/symbols.svg#search" size="small"/>-->                
+                <ui:inputText aura:id="lookup" placeholder="Search.." value="{!v.searchValue}" class="slds-input slds-size--1-of-2" updateOn="keyup" keyup="{!c.searchValues}" click="{!c.searchValues}" blur="{!c.hideDiv}"/>
+            </div>
+        </div>
+    </div>
+    
+    <aura:if isTrue="{!v.enableLookup}">        
+        <div aura:id="lookuplist" class="slds-lookup__menu slds-size--1-of-2 slds-medium-size--6-of-8 slds-large-size--6-of-8 slds-hide" role="listbox">        
+            <ul aura:id="lookuplist-items" class="slds-lookup__list" role="presentation">           
+                <aura:iteration items="{!v.searchResults}" var="match">
+                    <li class="slds-lookup__item">
+                        <a id="{!match.recordId}" role="option"  onclick="{!c.selectedValue}">
+                            {!match.displayField1}<br/>
+                        </a>
+                        
+                    </li>
+                </aura:iteration>
+            </ul>
+        </div>
+    </aura:if>
+</aura:component>

@@ -1,0 +1,31 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" controller="CancelScenario">
+    <aura:attribute name="scenarioDetails" type="Scenario__c" default="{ 'sobjectType': 'Scenario__c'}"/>
+    <aura:attribute name = "recordId" type="string"/> 
+    <aura:attribute name="Cancel" type="list"/>
+    <aura:attribute name = "isOpen" type="boolean" default="false"/>
+    <aura:handler name = "init" value="{!this}" action="{!c.doinit}"/>
+    <lightning:button class="btnWidth" variant="brand" label="Cancel Scenario" title="Cancel Scenario" onclick="{!c.openModel}"/>
+    <aura:if isTrue="{!v.isOpen}">
+    <div class="slds-m-around_xx-large">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+            <div class="slds-modal__container">
+                <header class="slds-modal__header">
+                    <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Cancel Scenario</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                    <ui:inputSelect label="Cancel" value="{!v.scenarioDetails.Cancel_Reason__c }">
+                        <aura:iteration items="{!v.Cancel}" var="item">
+                            <ui:inputSelectOption label="{!item.labelval}" text="{!item.selectedVal}"/>
+                         </aura:iteration>
+                    </ui:inputSelect> 
+                </div>
+                <footer class="slds-modal__footer">
+                    <lightning:button variant="neutral" label="Submit" title="Submit" onclick="{!c.CancelScenario}"/>
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.closeModel}"/>
+                </footer>
+            </div>
+        </section> 
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>  
+    </aura:if>     
+</aura:component>

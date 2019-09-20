@@ -1,0 +1,657 @@
+<aura:component implements="flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:lightningQuickAction" access="global" Controller="EditQuoteLines">
+    <!-- <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>-->
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="QuoteDetails" type="Scenario__c"/>
+    <aura:attribute name ="Lot" type="sObject"/>
+    <aura:attribute name ="Model" type="sObject"/>
+    <aura:attribute name ="Options" type = "Option__c[]"/>
+    <aura:attribute name ="AvailableProduct" type = "list"/>
+    <aura:attribute name ="AvailableOPtions" type = "list"/>
+    <aura:attribute name ="GroupOPtions" type = "list"/>
+    <aura:attribute name ="Type" type = "String"/>
+    <aura:attribute name ="Categories" type = "list"/>
+    <aura:attribute name ="SelectedCategory" type = "String"/>
+    <aura:attribute name ="GroupTypes" type = "list"/>
+    <aura:attribute name ="GroupName" type = "String"/>
+    <aura:attribute name ="ProductName" type = "String"/>
+    <aura:attribute name ="LotEdit" type="boolean" default="false"/>
+    <aura:attribute name ="ModelEdit" type="boolean" default="false"/>
+    <aura:attribute name ="OptionsEdit" type="boolean" default="false"/>
+    <aura:attribute name ="EditId" type="string"/>
+    <aura:attribute name ="isOpen" type="boolean" default="false"/>
+    <aura:attribute name ="AddModelPopUp" type="boolean" default="false"/>
+    <aura:attribute name ="AddOptionsPopUp" type="boolean" default="false"/>
+    <aura:attribute name ="AvailablePopUp" type="boolean" default="true"/>
+    <aura:attribute name ="GroupingPopUp" type="boolean" default="false"/>
+    <aura:attribute name ="recordId" type="string"/> 
+    <aura:attribute name="isDeletePopup" type="boolean" default="false"/>
+    <aura:attribute name="isOpenedLot" type="boolean" default="false"/>
+    <aura:attribute name="isOpenedModel" type="boolean" default="false"/>
+    <aura:handler name ="init" value="{!this}" action="{!c.doinit}"/>
+    <aura:attribute name="showModalSpinner" type="boolean"/>
+    <!--loading spinner start... style=Brand Medium (blue dots)-->
+    <aura:if isTrue="{!v.Spinner}">
+        <div aura:id="spinnerId" class="slds-spinner_container">
+            <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                <span class="slds-assistive-text">Loading</span>
+                <div class="slds-spinner__dot-a"></div>
+                <div class="slds-spinner__dot-b"></div>
+            </div>
+        </div>
+    </aura:if>
+    <!-- Loading spinner end-->
+    <lightning:button class="btnWidth" variant="brand" label="Configure Options" title="Configure Options" onclick="{!c.openModel}" />
+    <aura:if isTrue="{!v.isOpen}">
+        
+        <div class="slds-m-around_xx-large">
+            <!--###### MODAL BOX Start######--> 
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <!--loading spinner start... style=Brand Medium (blue dots)-->
+                <aura:if isTrue="{!v.Spinner}">
+                    <div aura:id="spinnerId" class="slds-spinner_container">
+                        <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                            <span class="slds-assistive-text">Loading</span>
+                            <div class="slds-spinner__dot-a"></div>
+                            <div class="slds-spinner__dot-b"></div>
+                        </div>
+                    </div>
+                </aura:if>
+                <!-- Loading spinner end-->
+                <aura:if isTrue="{!v.AvailablePopUp}">
+                    <aura:if isTrue="{!v.isDeletePopup}">                             
+                        <!--###### MODAL BOX Start######-->
+                        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                            <div class="slds-modal__container">                          
+                                <!--###### MODAL BOX BODY Part Start######-->
+                                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                                    <aura:if isTrue="{!v.isOpenedLot}">
+                                        <p>Do you want to delete the Lot?</p>
+                                    </aura:if>
+                                    <aura:if isTrue="{!v.isOpenedModel}">
+                                        <p>Do you want to delete the Model?</p>
+                                    </aura:if>
+                                </div>
+                                <!--###### MODAL BOX FOOTER Part Start ######-->
+                                <footer class="slds-modal__footer">
+                                    <lightning:button variant="neutral" 
+                                                      label="No"
+                                                      title="No"
+                                                      onclick="{! c.DeleteNo }"/>
+                                    <lightning:button variant="brand" 
+                                                      label="Yes"
+                                                      title="Yes"
+                                                      onclick="{! c.DeleteYes }"/>
+                                </footer>
+                            </div>
+                        </section> 
+                        <div class="slds-backdrop slds-backdrop_open"></div>
+                    </aura:if>             
+                    
+                    <div class="slds-modal__container" style="width:92%;min-width:92%;max-width:92%">
+                        <!-- ###### MODAL BOX HEADER Start ######-->
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon iconName="utility:close" onclick="{!c.closeModel}" alternativeText="close" variant="bare-inverse" class="slds-modal__close"/>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Configure Options</h2>
+                        </header>
+                        <!--###### MODAL BOX BODY Part Start######--> 
+                        <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                            <aura:if isTrue="{!v.showModalSpinner}">
+                                <lightning:spinner alternativeText="Loading" variant="brand" />
+                            </aura:if>
+                            <div class="slds-grid slds-wrap" >
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_5-of-12 slds-large-size_5-of-12" Style="background-color:#f4f6f9;Padding:4px;">
+                                    <div class="slds-text-heading_large">Lot</div>
+                                    <aura:if isTrue="{!v.Lot.Id != null}">
+                                        <div class="slds-grid">
+                                            <!--<aura:if isTrue="{!v.LotEdit}">
+                                                <div class="slds-col">
+                                                    Actions<br/>
+                                                    <a onclick="{!c.SaveLot}"><img class="actionimage" src="{!$Resource.SaveIcon}" alt="Save"/></a>
+                                                    <a onclick="{!c.Cancel}"><img class="actionimage" src="{!$Resource.CancelIcon}" alt="Cancel"/></a>
+                                                    <aura:set attribute="else">                                                            
+                                                        <a onclick="{!c.LotEdit}"><img class="actionimage" src="{!$Resource.EditIcon}" alt="Edit"/></a>
+                                                        <aura:if isTrue="{!(v.QuoteDetails.Status__c != 'Approved')}">   
+                                                            <a onclick="{!c.DeleteLot}"><img class="actionimage" src="{!$Resource.DeleteIcon}" alt="Cancel"/></a>
+                                                        </aura:if>
+                                                    </aura:set> 
+                                                </div>
+                                                <aura:set attribute="else">
+                                                    <div class="slds-col"></div>
+                                                </aura:set>
+                                            </aura:if>-->
+                                 .          <div class="slds-col">       
+                                                <aura:if isTrue="{!(v.QuoteDetails.Status__c != 'Approved')}">   
+                                                    Actions<br/>
+                                                    <a onclick="{!c.DeleteLot}"><img class="actionimage" src="{!$Resource.DeleteIcon}" alt="Cancel"/></a>
+                                            	    <aura:set attribute="else">
+                                                    	<div class="slds-col"></div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </div>
+                                            <div class="slds-col">
+                                                Name<br/>
+                                                <ui:outputtext aura:id="homesite" value="{!v.Lot.Catalog__r.Name}"/>
+                                            </div>
+                                            <!--<div class="slds-col">
+                                                Catalog Code<br/>
+                                                <ui:outputText aura:id="Product Code" value="{!v.Lot.Catalog__r.ProductCode__c}"/>
+                                            </div>-->
+                                            <div class="slds-col">
+                                                Unit Price<br/>
+                                                <ui:outputCurrency aura:id="Unit Price" value="{!v.Lot.UnitPrice__c}"/>
+                                                <!--<aura:if isTrue="{!v.LotEdit}">
+                                                    <ui:inputCurrency aura:id="UnitPrice1" value="{!v.Lot.UnitPrice__c}" class="inputlength" min = "0"/>
+                                                    <aura:set attribute="else">
+                                                        <ui:outputCurrency aura:id="Unit Price" value="{!v.Lot.UnitPrice__c}"/>
+                                                    </aura:set>
+                                                </aura:if> -->   
+                                            </div>
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <Center><lightning:button variant="neutral" label="Add Lot" title="Add Lot" onclick="{!c.AvailableLots}"/></Center>
+                                        </aura:set>
+                                    </aura:if>                                    
+                                </div>
+                                
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12 slds-large-size_2-of-12" Style="Padding:4px;">
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_5-of-12 slds-large-size_5-of-12" Style="background-color:#f4f6f9;Padding:4px;">
+                                    <div class="slds-text-heading_large">Model</div>
+                                    <aura:if isTrue="{!v.Model.Id != null}">
+                                        <div class="slds-grid">
+                                            <!--<aura:if isTrue="{!v.ModelEdit}">
+                                                <div class="slds-col">
+                                                    Actions<br/>
+                                                    <a onclick="{!c.SaveModel}"><img class="actionimage" src="{!$Resource.SaveIcon}" alt="Save"/></a>
+                                                    <a onclick="{!c.Cancel}"><img class="actionimage" src="{!$Resource.CancelIcon}" alt="Cancel"/></a>
+                                                    <aura:set attribute="else">
+                                                        <a onclick="{!c.ModelEdit}"><img class="actionimage" src="{!$Resource.EditIcon}" alt="Edit"/></a>
+                                                        <aura:if isTrue="{!(v.QuoteDetails.Status__c != 'Approved')}">
+                                                            <a onclick="{!c.DeleteModel}"><img class="actionimage" src="{!$Resource.DeleteIcon}" alt="Delete"/></a>    
+                                                        </aura:if>
+                                                    </aura:set>
+                                                </div>
+                                                <aura:set attribute="else">
+                                                    <div class="slds-col">
+                                                    </div>
+                                                </aura:set>
+                                            </aura:if>  -->
+                                            <div class="slds-col">       
+                                                <aura:if isTrue="{!(v.QuoteDetails.Status__c != 'Approved')}">   
+                                                    Actions<br/>
+                                                    <a onclick="{!c.DeleteModel}"><img class="actionimage" src="{!$Resource.DeleteIcon}" alt="Delete"/></a> 
+                                            	    <aura:set attribute="else">
+                                                    	<div class="slds-col"></div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </div>
+                                            <div class="slds-col">
+                                                Name<br/>
+                                                <ui:outputtext aura:id="modelname" value="{!v.Model.Catalog__r.Name}"/>
+                                            </div>
+                                            <!--<div class="slds-col">
+                                                Catalog Code<br/>
+                                                <ui:outputText aura:id="Product Code" value="{!v.Model.Catalog__r.ProductCode__c}"/>
+                                            </div>-->
+                                            <div class="slds-col">
+                                                Unit Price<br/>
+                                                <ui:outputCurrency aura:id="Unit Price" value="{!v.Model.UnitPrice__c}"/>
+                                                <!--<aura:if isTrue="{!v.ModelEdit}">
+                                                    <ui:inputCurrency aura:id="UnitPrice1" value="{!v.Model.UnitPrice__c}" class="inputlength"/>
+                                                    <aura:set attribute="else">
+                                                        <ui:outputCurrency aura:id="Unit Price" value="{!v.Model.UnitPrice__c}"/>
+                                                    </aura:set>
+                                                </aura:if>-->
+                                            </div>
+                                        </div>
+                                        <aura:set attribute="else">
+                                            <Center><lightning:button variant="neutral" label="Add Model" title="Add Model" onclick="{!c.AvailableModels}"/></Center>
+                                        </aura:set>
+                                    </aura:if>
+                                </div>
+                                <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-8 slds-large-size_1-of-8" Style="Padding:4px;">
+                                </div>
+                            </div> 
+                            <br/>
+                            <div class="slds-grid slds-wrap" Style="background-color:#f4f6f9;Padding:4px;overflow: auto;">
+                                <div class="slds-col slds-size_1-of-1">
+                                    <div class="slds-text-heading_large">Options</div>
+                                    <div style="text-align:center;">
+                                        <lightning:button variant="neutral" label="Add Options" title="Add Options" onclick="{!c.AvailableCategories}"/>
+                                        <lightning:button variant="neutral" label="Add Groups" title="Add Groups" onclick="{!c.GroupNames}"/>
+                                    </div>	
+                                </div>
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer" style="Margin-top:6px;">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Select">Actions</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Description">Name</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Product Name">Catalog Code</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Notes">Notes</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Quantity">Quantity</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Unit Price">Unit Price</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Net Amount">Net Amount</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Cancelled">Cancelled</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:if isTrue="{!v.GroupOPtions}">
+                                            <aura:iteration items="{!v.GroupOPtions}" var="gopt">
+                                                <tr>
+                                                    <td colspan="8">
+                                                        <div class="slds-text-heading_large" style="font-size:14px;padding-bottom:4px;font-weight:900">
+                                                            {!gopt.GroupName}
+                                                        </div>    
+                                                    </td>
+                                                </tr>    
+                                                <aura:iteration items="{!gopt.InnerWapperList}" var="opt" indexVar="idx">
+                                                    <tr>
+                                                        <td data-label="Checkbox">
+                                                            <div class="slds-truncate">
+                                                                <aura:if isTrue="{! and(v.OptionsEdit,v.EditId == opt.LineDetails.Id)}"> 
+                                                                    <a onclick="{!c.GroupOption}" title="Save" data-datavalue="{!opt.LineDetails.Id}"> <img class="actionimage" src="{!$Resource.SaveIcon}"  alt="Save"/></a>
+                                                                    <a onclick="{!c.Cancel}" title="Cancel" data-datavalue="{!opt.LineDetails.Id}"> <img class="actionimage" src="{!$Resource.CancelIcon}"  alt="Cancel"/></a>
+                                                                    <aura:set attribute="else">
+                                                                        <aura:if isTrue="{!!opt.LineDetails.Cancelled__c}"><a onclick="{!c.OptionEdit}" title="Edit" data-datavalue="{!opt.LineDetails.Id}"> <img class="actionimage" src="{!$Resource.EditIcon}"  alt="Edit"/></a></aura:if>
+                                                                        <aura:if isTrue="{!!opt.LineDetails.Cancelled__c}"><a onclick="{!c.DeleteOption}" title="Delete" data-datavalue="{!opt.LineDetails.Id}"> <img class="actionimage" src="{!$Resource.DeleteIcon}"  alt="Delete"/></a></aura:if>
+                                                                        <aura:if isTrue="{!opt.LineDetails.Group__c}"><a onclick="{!c.RemoveFromGroup}" title="Ungroup" data-datavalue="{!opt.LineDetails.Id}"> <img class="actionimage" src="{!$Resource.UngroupIcon}"  alt="Ungroup"/></a></aura:if>
+                                                                    </aura:set> 
+                                                                </aura:if>    
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Name">
+                                                            <div class="slds-truncate">
+                                                                <ui:outputText aura:id="name" value="{!opt.LineDetails.Catalog__r.Name}"/>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Code">
+                                                            <div class="slds-truncate">
+                                                                <ui:outputText aura:id="code" value="{!opt.LineDetails.Catalog__r.CatalogCode__c}"/>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="note">
+                                                            <div class="slds-truncate">
+                                                                <aura:if isTrue="{! and(v.OptionsEdit,v.EditId == opt.LineDetails.Id)}">
+                                                                    <ui:inputTextArea aura:id="name" value="{!opt.LineDetails.Notes__c}"/>
+                                                                    <aura:set attribute="else">
+                                                                        <ui:outputTextArea aura:id="name" value="{!opt.LineDetails.Notes__c}"/>
+                                                                    </aura:set>    
+                                                                </aura:if>
+                                                            </div>
+                                                        </td> 
+                                                        <td data-label="Quantity">
+                                                            <div class="slds-truncate">
+                                                                <aura:if isTrue="{! and(v.OptionsEdit,v.EditId == opt.LineDetails.Id)}">
+                                                                    <ui:inputNumber aura:id="name" value="{!opt.LineDetails.Quantity__c}"/>
+                                                                    
+                                                                    <aura:set attribute="else">
+                                                                        <ui:outputNumber aura:id="name" value="{!opt.LineDetails.Quantity__c}"/>
+                                                                    </aura:set>    
+                                                                </aura:if>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="UnitPrice">
+                                                            <div class="slds-truncate">
+                                                                <ui:outputCurrency aura:id="name" value="{!opt.LineDetails.UnitPrice__c}"/>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="TotalPrice">
+                                                            <div class="slds-truncate">
+                                                                <ui:outputCurrency aura:id="name" value="{!opt.LineDetails.NetAmount__c}"/>
+                                                            </div>
+                                                        </td>
+                                                        <td data-label="Cancelled" data-datavalue="{!opt.LineDetails.Id}" onclick = "{!c.GroupOption}">
+                                                            <div class="slds-truncate" >
+                                                                <aura:if isTrue="{!gopt.GroupName != 'Cancelled'}">
+                                                                    <ui:inputCheckbox  value="{!opt.LineDetails.Cancelled__c}"/>
+                                                                    <aura:set attribute="else">
+                                                                        <ui:outputCheckbox aura:id="name" value="{!opt.LineDetails.Cancelled__c}"/>
+                                                                    </aura:set>    
+                                                                </aura:if>   
+                                                            </div>
+                                                        </td> 
+                                                    </tr>
+                                                </aura:iteration>
+                                            </aura:iteration>      
+                                            <aura:set attribute="else">
+                                                <tr><td col-span="8"><center>Sorry, you haven't selected any available options</center></td></tr>
+                                            </aura:set>
+                                        </aura:if>   
+                                    </tbody>
+                                </table>
+                            </div> 
+                        </div>
+                        <!--###### MODAL BOX FOOTER Part Start ######-->
+                        <footer class="slds-modal__footer">
+                            <lightning:button variant="neutral" label="Finish" title="Finish" onclick="{!c.closeModel}"/>
+                        </footer>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.AddModelPopUp}">
+                    <aura:if isTrue="{!v.showModalSpinner}">
+                        <lightning:spinner alternativeText="Loading" variant="brand" />
+                    </aura:if>
+                    <div class="slds-modal__container" style="width:92%;min-width:92%;max-width:92%">
+                        <!-- ###### MODAL BOX HEADER Start ######-->
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon iconName="utility:close" onclick="{!c.CancelSubPopup}" alternativeText="close" variant="bare-inverse" class="slds-modal__close"/>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">
+                                <aura:if isTrue="{!v.Type == 'Lot'}">
+                                    Select Lot
+                                    <aura:set attribute="else">
+                                        <aura:if isTrue="{!v.Type == 'Model'}">
+                                            Select Model
+                                            <!--<aura:set attribute="else">
+                                                Select Package
+                                            </aura:set>-->
+                                        </aura:if>
+                                    </aura:set>
+                                </aura:if>    
+                            </h2>
+                        </header>
+                        <!--###### MODAL BOX BODY Part Start######-->
+                        <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                            <div class="slds-grid slds-wrap" Style="Padding:4px;overflow: auto;">
+                                <div class="slds-col slds-size_1-of-1">
+                                    <div class="slds-text-heading_large" style="font-size:18px;padding-bottom:4px;font-weight:900"></div>
+                                </div> 
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Select">Select</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Desvription">Name</div>
+                                            </th>
+                                            <!--<th scope="col">
+                                                <div class="slds-truncate" title="Product Name">Catalog Code</div>
+                                            </th>-->
+                                            <aura:if isTrue="{!v.Type == 'Lot'}">
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="status">Status</div>
+                                                </th>
+                                            </aura:if>   
+                                            <th scope="col">
+                                                <aura:if isTrue="{!v.Type == 'Lot'}">
+                                                    <div class="slds-truncate" title="Unit Price">Lot Premium</div>
+                                                    <aura:set attribute="else">
+                                                        <div class="slds-truncate" title="Unit Price">Model Price</div>
+                                                    </aura:set>
+                                                </aura:if>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        
+                                        <aura:iteration items="{!v.AvailableProduct}" var="Pro">
+                                            
+                                            <tr>
+                                                <td data-label="Checkbox">
+                                                    <div class="slds-truncate">
+                                                        <ui:inputCheckbox aura:id="{!Pro.ProductDetails.Id}" name="{!Pro.ProductDetails.Id}" click="{!c.handleSelected}" value="{!Pro.Checkbox}"/>
+                                                    </div>
+                                                </td>
+                                                
+                                                <td data-label="Name">
+                                                    <div class="slds-truncate">
+                                                        <ui:outputText aura:id="name" value="{!Pro.ProductDetails.Name}"/>
+                                                    </div>
+                                                </td>
+                                                <!--<td data-label="Code">
+                                                    <div class="slds-truncate">
+                                                        <ui:outputText aura:id="code" value="{!Pro.ProductDetails.CatalogCode__c}"/>
+                                                    </div>
+                                                </td>-->
+                                                <aura:if isTrue="{!v.Type == 'Lot'}">
+                                                    <td data-label="Name">
+                                                        <div class="slds-truncate">
+                                                            <ui:outputText aura:id="name" value="{!Pro.ProductDetails.Status__c}"/>
+                                                        </div>
+                                                    </td>
+                                                </aura:if>
+                                                <td data-label="ListPrice">
+                                                    <div class="slds-truncate">
+                                                        <ui:outputCurrency aura:id="name" value="{!Pro.ProductDetails.Price__c}"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>    
+                                    </tbody>
+                                </table>
+                            </div> 
+                            
+                        </div>
+                        <!--###### MODAL BOX FOOTER Part Start ######-->
+                        <footer class="slds-modal__footer">
+                            <lightning:button variant="neutral" label="Save" title="Save" onclick="{!c.InsertLotModelPackage}"/>
+                            <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.CancelSubPopup}"/>
+                        </footer>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.AddOptionsPopUp}">
+                    <aura:if isTrue="{!v.showModalSpinner}">
+                        <lightning:spinner alternativeText="Loading" variant="brand" />
+                    </aura:if>
+                    <div class="slds-modal__container" style="width:92%;min-width:92%;max-width:92%">
+                        <!-- ###### MODAL BOX HEADER Start ######-->
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon iconName="utility:close" onclick="{!c.CancelSubPopup}" alternativeText="close" variant="bare-inverse" class="slds-modal__close"/>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Select Options</h2>
+                        </header>
+                        <!--###### MODAL BOX BODY Part Start######-->
+                        <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                            <div class="slds-grid slds-wrap" Style="Padding:4px;overflow: auto;">
+                                <aura:if isTrue="{!v.SelectedCategory}"> 
+                                    <aura:if isTrue="{!v.showModalSpinner}">
+                                        <lightning:spinner alternativeText="Loading" variant="brand" />
+                                    </aura:if>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                                        <span></span>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                                        <span>Categories :</span>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-large-size_2-of-12">
+                                        <ui:inputSelect value="{!v.SelectedCategory}" change="{!c.AvailableOptions}">
+                                            <aura:iteration items="{!v.Categories}" var="item">
+                                                <ui:inputSelectOption label="{!item.labelVal}" text="{!item.optionVal}"/>
+                                            </aura:iteration>
+                                        </ui:inputSelect>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                                        <span></span>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                                        <span>Catalog :</span>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-2 slds-medium-size_2-of-12 slds-large-size_2-of-12">
+                                        <ui:inputtext aura:id="Catalogcode" value="{!v.ProductName}"/> 
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_1-of-12 slds-large-size_1-of-12">
+                                        <span></span>
+                                    </div>
+                                    <div class="slds-col slds-size_1-of-1 slds-medium-size_2-of-12 slds-large-size_3-of-12">
+                                        <lightning:button variant="brand" label="Search" title="Search" onclick="{!c.SearchOptions}"/> 
+                                    </div>
+                                </aura:if>   
+                                <aura:if isTrue="{!v.SelectedCategory}">
+                                    <table class="slds-table slds-table_bordered slds-table_cell-buffer" style="Margin-top:6px;">
+                                        <thead>
+                                            <tr class="slds-text-title_caps">
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Select">Select</div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Catalog Name">Name</div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Catalog Code">Catalog Code</div>
+                                                </th>
+                                                <th scope="col">
+                                                    <div class="slds-truncate" title="Unit Price">Unit Price</div>
+                                                </th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <aura:iteration items="{!v.AvailableOPtions}" var="Pro">
+                                                <tr>
+                                                    <td data-label="Checkbox">
+                                                        <div class="slds-truncate">
+                                                            <ui:inputCheckbox aura:id="{!Pro.ProductDetails.Id}" name="{!Pro.ProductDetails.Id}" value="{!Pro.Checkbox}"/>
+                                                        </div>
+                                                    </td>        
+                                                    <td data-label="Name">
+                                                        <div class="slds-truncate">
+                                                            <ui:outputText aura:id="name" value="{!Pro.ProductDetails.Name}"/>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="Code">
+                                                        <div class="slds-truncate">
+                                                            <ui:outputText aura:id="code" value="{!Pro.ProductDetails.CatalogCode__c}"/>
+                                                        </div>
+                                                    </td>
+                                                    <td data-label="ListPrice">
+                                                        <div class="slds-truncate">
+                                                            <ui:outputCurrency aura:id="name" value="{!Pro.ProductDetails.Price__c}"/>
+                                                        </div>
+                                                    </td>
+                                                </tr>
+                                            </aura:iteration>    
+                                        </tbody>
+                                    </table>
+                                </aura:if>       
+                            </div> 
+                            <aura:if isTrue="{!!v.SelectedCategory}">
+                                <div class="slds-grid slds-grid_align-center">
+                                    <div class="slds-col">
+                                        Categories : 
+                                    </div>
+                                    <div class="slds-col">
+                                        <ui:inputSelect value="{!v.SelectedCategory}" change="{!c.AvailableOptions}">
+                                            <aura:iteration items="{!v.Categories}" var="item">
+                                                <ui:inputSelectOption label="{!item.labelVal}" text="{!item.optionVal}"/>
+                                            </aura:iteration>
+                                        </ui:inputSelect>
+                                    </div>
+                                </div>
+                            </aura:if>  
+                        </div>
+                        <!--###### MODAL BOX FOOTER Part Start ######-->
+                        <footer class="slds-modal__footer">
+                            <lightning:button variant="neutral" label="Finish" title="Finish" onclick="{!c.InsertOptions}"/>
+                            <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.CancelSubPopup}"/>
+                        </footer>
+                    </div>
+                </aura:if>
+                <aura:if isTrue="{!v.GroupingPopUp}">
+                    <aura:if isTrue="{!v.showModalSpinner}">
+                        <lightning:spinner alternativeText="Loading" variant="brand" />
+                    </aura:if>
+                    <div class="slds-modal__container" style="width:92%;min-width:92%;max-width:92%">
+                        <!-- ###### MODAL BOX HEADER Start ######-->
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon iconName="utility:close" onclick="{!c.CancelSubPopup}" alternativeText="close" variant="bare-inverse" class="slds-modal__close"/>
+                            <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Grouping</h2>
+                        </header>
+                        <!--###### MODAL BOX BODY Part Start######-->
+                        <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                            <div class="slds-grid slds-wrap" Style="Padding:4px;">
+                                <div class="slds-grid slds-grid_align-center">
+                                    <div class="slds-col">
+                                        Group Names : 
+                                    </div>
+                                    <div class="slds-col">
+                                        <ui:inputSelect value="{!v.GroupName}">
+                                            <aura:iteration items="{!v.GroupTypes}" var="item">
+                                                <ui:inputSelectOption label="{!item.labelVal}" text="{!item.optionVal}"/>
+                                            </aura:iteration>
+                                        </ui:inputSelect>
+                                    </div>
+                                    <aura:if isTrue="{!v.GroupName == 'Create Group'}">
+                                        <div class="slds-col">
+                                            &nbsp;&nbsp;Group Name: 
+                                        </div>
+                                        <div class="slds-col">
+                                            <ui:inputText aura:id="code" value="{!v.Type}"/>
+                                        </div>    
+                                    </aura:if>    
+                                </div>
+                                <table class="slds-table slds-table_bordered slds-table_cell-buffer" style="Margin-top:6px;">
+                                    <thead>
+                                        <tr class="slds-text-title_caps">
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Select">Select</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Desvription">Catalog Name</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Product Name">Catalog Code</div>
+                                            </th>
+                                            <th scope="col">
+                                                <div class="slds-truncate" title="Unit Price">Unit Price</div>
+                                            </th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <aura:iteration items="{!v.AvailableOPtions}" var="Pro">
+                                            <tr>
+                                                <td data-label="Checkbox">
+                                                    <div class="slds-truncate">
+                                                        <ui:inputCheckbox aura:id="{!Pro.Id}" name="{!Pro.LineDetails.Id}" value="{!Pro.Checkbox}"/>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Name">
+                                                    <div class="slds-truncate">
+                                                        <ui:outputText aura:id="name" value="{!Pro.LineDetails.Catalog__r.Name}"/>
+                                                    </div>
+                                                </td>
+                                                <td data-label="Code">
+                                                    <div class="slds-truncate">
+                                                        <ui:outputText aura:id="code" value="{!Pro.LineDetails.Catalog__r.CatalogCode__c}"/>
+                                                    </div>
+                                                </td>
+                                                
+                                                <td data-label="ListPrice">
+                                                    <div class="slds-truncate">
+                                                        <ui:outputCurrency aura:id="name" value="{!Pro.LineDetails.UnitPrice__c}"/>
+                                                    </div>
+                                                </td>
+                                            </tr>
+                                        </aura:iteration>    
+                                    </tbody>
+                                </table>
+                            </div>	                        
+                        </div>
+                        <!--###### MODAL BOX FOOTER Part Start ######-->
+                        <footer class="slds-modal__footer">
+                            <lightning:button variant="neutral" label="Save" title="Save" onclick="{!c.TieGroups}"/>
+                            <lightning:button variant="neutral" label="Finish" title="Finish" onclick="{!c.TieGroupsAndClose}"/>
+                            <lightning:button variant="neutral" label="Close" title="Close" onclick="{!c.CancelSubPopup}"/>
+                        </footer>
+                    </div>
+                </aura:if>                
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+            <!--###### MODAL BOX Part END Here ######-->
+        </div>
+    </aura:if>    
+</aura:component>

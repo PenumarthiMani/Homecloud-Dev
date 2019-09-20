@@ -1,0 +1,15 @@
+.THIS .slds-text-heading_large{
+    text-align:left;
+    font-size: 18px;
+    padding-bottom: 4px;
+    font-weight: 900;    
+}
+.THIS .actionimage{
+    padding-right: 8px;
+}
+.THIS .btnWidth{
+    Width:156px;
+}
+.THIS .slds-spinner_container  {
+    background-color: rgba(0, 0, 0, 0);
+}

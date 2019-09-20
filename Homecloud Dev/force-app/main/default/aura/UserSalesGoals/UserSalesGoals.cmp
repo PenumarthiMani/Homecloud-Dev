@@ -1,0 +1,130 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction" access="global" controller = "TurboGoal">
+    
+    <!--attribute-->     
+    <aura:attribute name="turboGoolDisplay" type = "boolean"/>
+    <aura:attribute name="editandSaveDisplay" type= "boolean"/>
+    <aura:attribute name="userId" type="String"/>
+    <aura:attribute name="yearChange" type="string"/>
+    <aura:attribute name="yearChangedefault" type="string"/>
+    <aura:attribute name="yearChangedefault123" type="string"/>
+    <aura:attribute name="turboGoalList" type="Sales__c[]"/>
+    <aura:attribute name="editvariable" type="boolean" />
+    <aura:attribute name="spinner" type="boolean" default = "false"/>
+    <aura:attribute name="negMessage" type="boolean" default = "false"/>
+    <aura:attribute name="yearbool" type="boolean" default = "false"/>
+    <aura:attribute name="norecord" type="boolean" default = "true"/>
+    <!--handler-->
+    <aura:handler name="init" value="{!this}" action="{!c.init}"/>
+    <aura:handler name="lookupEvent" event="c:lookupEvent" action="{!c.handleComponetEvent}"/> 
+    <aura:handler name="defaultuser" event="c:defaultuser" action="{!c.handleDefaultUserComponetEvent}"/>
+    
+    <Lightning:Card title="Sales Goals">
+        <center> 
+            <div>
+                <table style="width:65%;">
+                    <tr>
+                        <td style="Width:25%;"><span style="color:rgb(62, 62, 60);font-size:0.75rem;">User
+                            <c:lookupReusableChild sobjectType="User" queryFields="Id,Name"
+                                                   searchFilter1="Name" enableLookup = "false" isDefault = "true" psobjname = "sales" isIcon="true" iconName="custom:custom8" /></span></td>
+                        <td style="Width:15%;"></td>
+                        <td style="Width:25%;">
+                           <lightning:select aura:id="select"
+                                          
+                                          name="select" label="Year"
+                                          onchange="{! c.yearChange }"
+                                          value="{!v.yearChangedefault}">
+                            <aura:iteration items="{!v.yearChange}" var="st">
+                                <aura:if isTrue="{!(st.labelval == v.yearChangedefault123)}">
+                                    
+                                	<option value="{!st.labelval}" selected="true">{!st.labelval}</option>
+                                    <aura:set attribute="else">
+                                      <option value="{!st.labelval}">{!st.selectedVal}</option>
+                                    </aura:set>
+                                </aura:if>
+                            </aura:iteration>
+
+                        </lightning:select></td>
+                    </tr>
+                </table> 
+            </div>
+        </center>    
+        <br/>
+        
+        <div>
+            <center>
+                <aura:if isTrue="{!v.turboGoolDisplay}">
+                    <aura:if isTrue="{!v.editandSaveDisplay}">
+                        <lightning:button variant="brand" label="Edit" title="Edit action" onclick="{!c.editAction}" />
+                        <aura:set attribute="else">
+                            <lightning:button variant="brand" label="Save" title="Save action" onclick="{!c.saveAction}"/> 
+                            <lightning:button variant="brand" label="Cancel" title="Cancel action" onclick="{!c.cancelAction}"/> 
+                        </aura:set>
+                    </aura:if> 
+                </aura:if>
+            </center>   
+        </div>
+    </Lightning:Card>  
+    
+    <!-- datatable --> 
+    <aura:if isTrue="{!v.turboGoalList}">
+        <div style="height: 400px">
+            <table class="slds-table slds-table_bordered slds-table_cell-buffer" style="width:100%;">
+                
+                <aura:if isTrue="{!v.spinner}">
+                    <div class="exampleHolder">
+                        <lightning:spinner alternativeText="Loading" size="medium" />
+                    </div>
+                </aura:if>
+                
+                <thead>
+                    <tr class="slds-text-title_caps">
+                        <th scope="col" style="width:33%;">
+                            <div class="slds-truncate" title="Month">Month</div>
+                        </th>
+                        <th scope="col" style="width:33%;">
+                            <div class="slds-truncate" title="Actuals">Actuals</div>
+                        </th>
+                        <th scope="col" style="width:33%;">
+                            <div class="slds-truncate" title="Goals">Goals</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:if isTrue="{!v.norecord}">
+                    <aura:if isTrue="{!v.editvariable}">
+                        <aura:iteration items="{!v.turboGoalList}" var="a">
+                            <tr>
+                                <td data-label="Date">
+                                    <div class="slds-truncate" title="">{!a.Name_of_the_Month__c}</div>
+                                </td>
+                                <td data-label="Actuals">
+                                    <div class="slds-truncate" title="">{!a.Actuals__c}</div>
+                                </td>
+                                <td data-label="Turbo">
+                                    <div class="slds-truncate" title="">{!a.Goal__c}</div>
+                                </td>
+                            </tr>
+                        </aura:iteration>
+                        <aura:set attribute= "else">
+                            <aura:iteration items="{!v.turboGoalList}" var="a">
+                                <tr>
+                                    <td data-label="Date">
+                                        <div class="slds-truncate" title="">{!a.Name_of_the_Month__c}</div>
+                                    </td>
+                                    <td data-label="Actuals">
+                                        <div class="slds-truncate" title="">{!a.Actuals__c}</div>
+                                    </td>
+                                    <td data-label="Goals">
+                                        <div class="slds-truncate" title=""> <ui:inputNumber aura:id="inputCmp" value ="{!a.Goal__c}" class = "field"/></div>
+                                    </td>
+                                </tr>
+                            </aura:iteration>  
+                        </aura:set>  
+                    </aura:if>
+                        <aura:set attribute="else"><p style="text-align:justify">No records to Display</p></aura:set>
+                        </aura:if>
+                </tbody>
+            </table>            
+        </div>
+    </aura:if>   
+</aura:component>

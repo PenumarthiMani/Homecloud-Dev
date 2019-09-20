@@ -1,0 +1,56 @@
+<aura:component implements="force:hasRecordId,flexipage:availableForAllPageTypes,force:lightningQuickActionWithoutHeader" access="global" controller="WetSignature">
+    <aura:handler event="aura:waiting" action="{!c.showSpinner}"/>
+    <aura:attribute name = "isOpen" type="boolean" default="false"/>
+    <aura:handler event="aura:doneWaiting" action="{!c.hideSpinner}"/>
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="accept" type="List" default="['.pdf', '.doc','.png']"/>
+    <aura:attribute name="multiple" type="Boolean" default="true"/>
+    <aura:attribute name="disabled" type="Boolean" default="false"/>
+    <aura:attribute name="ValidationsPassed" type="Boolean" default="false"/>
+    <aura:attribute name="HasError" type="Boolean" default="true"/>
+    <aura:attribute name = "SignatureTypes" type = "list"/>
+    <aura:attribute name = "SelectedType" type = "String"/>
+    <aura:attribute name = "ErrorMessage" type = "String"/>
+    <aura:handler name = "init" value="{!this}" action="{!c.doinit}"/>
+    <lightning:button class="btnWidth" variant="brand" label="Wet Signature" title="Wet Signature" onclick="{!c.openModel}"/>
+    <aura:if isTrue="{!v.isOpen}">
+    <div class="slds-m-around_xx-large">
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+   			<div class="slds-modal__container">
+            	<header class="slds-modal__header">
+                	<h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Wet Signature</h2>
+                </header>
+                <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+            		<aura:if isTrue="{!v.HasError}">    
+						<div style="background-color:#B82B0C;padding:5px;color:#fff">
+							<ui:outputRichText  value="{!v.ErrorMessage}"/>
+						</div>
+                        <aura:set attribute="else">
+                            <lightning:fileUpload label="Add attachment" multiple="{!v.multiple}" 
+												  accept="{!v.accept}" recordId="{!v.recordId}" 
+												  onuploadfinished="{!c.handleUploadFinished}" />
+                        </aura:set>
+					</aura:if>    
+					<!--<aura:if isTrue = "{!not(v.ValidationsPassed)}">
+						<ui:inputSelect label="Signature Type" value="{!v.SelectedType}">
+							<aura:iteration items="{!v.SignatureTypes}" var="item">
+								<ui:inputSelectOption label="{!item.labelval}" text="{!item.selectedVal}"/>
+							</aura:iteration>
+						</ui:inputSelect>
+						<aura:set attribute="else">
+							<lightning:fileUpload label="Add attachment" multiple="{!v.multiple}" 
+												  accept="{!v.accept}" recordId="{!v.recordId}" 
+												  onuploadfinished="{!c.handleUploadFinished}" />
+						</aura:set>
+					</aura:if> -->
+				</div>
+                <footer class="slds-modal__footer">
+					<!--<lightning:button label="Next" title="Next" onclick="{!c.validations}" disabled="{!if(v.ValidationsPassed, true, false)}"/> -->
+                    <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.closeModel}"/>
+                </footer>
+            </div>
+        </section> 
+        <div class="slds-backdrop slds-backdrop_open"></div>
+    </div>  
+    </aura:if>
+</aura:component>

@@ -1,0 +1,12 @@
+<apex:page controller="PrintScenarioEmailController" showHeader="false">
+    <apex:slds />
+    <div style="width:100%;text-align:center;margin-top:2%">
+        <apex:iframe src="/apex/SelectionReport?qid={!$CurrentPage.parameters.Id}" width="80%" height="650px"/>
+    </div>
+    <apex:form >
+        <div style="width:100%;text-align: center;margin-top: 2%;">
+            <apex:commandButton action="{!sendEmail}" value="Email" styleClass="slds-button slds-button_brand"/>
+            <apex:commandButton action="/{!$CurrentPage.parameters.Id}" value="Cancel" styleClass="slds-button slds-button_neutral"/>
+        </div>
+    </apex:form>
+</apex:page>

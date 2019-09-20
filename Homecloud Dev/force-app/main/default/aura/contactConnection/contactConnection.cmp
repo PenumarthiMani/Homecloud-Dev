@@ -1,0 +1,33 @@
+<aura:component implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId,force:hasSObjectName,force:lightningQuickActionWithoutHeader" access="global" controller="NewConnectionController">
+    <aura:attribute name="divId" Type="String" default=''/>
+    <aura:attribute name="conId" Type="String" default=''/>
+    <aura:attribute name="comId" Type="String" default=''/>
+    <aura:attribute name="estDate" Type="Date" default=''/>
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="isError" Type="Boolean" default='false' />
+    <aura:attribute name="customError" Type="String" default='Error'/>
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+    
+    <aura:handler name="lookupEvent" event="c:lookupEvent" action="{!c.handlelookupEvent}"/>
+    
+    <header class="slds-modal__header">
+        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">New Connection</h2>
+    </header> 
+    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+        <aura:if isTrue="{!v.isError}">
+            <ui:message title="Error" severity="error">
+                {!v.customError}
+            </ui:message>
+        </aura:if>        
+        <!--Homebuyer:<c:lookupReusableChild aura:id='homebuyerfield' precordId="{!v.recordId}" psobjname="{!v.sObjectName}" sobjectType="Contact" searchvalue="{!v.searchvalue}" queryFields="Id,Name,RecordTypeId" searchFilter1="Name" enableLookup = "true" isDefault = "true" filter1="RecordTypeId"  filter1value="Homebuyer" isIcon="true" iconName="standard:contact" /><br/>--> 
+        <lightning:input aura:id='homebuyerfield'  label="Homebuyer:" value="{!v.conId}" disabled="true" /><br/>
+        <abbr title="required" class = "slds-required">*</abbr>Division:<c:lookupReusableChild aura:id='divisionfield' sobjectType="Division__c" queryFields="Id, Name, Active__c" searchFilter1="Name" enableLookup = "true" isDefault = "true" filter1="Active__c"  filter1value="true" isIcon="true" iconName="custom:custom8" /><br/>
+        <abbr title="required" class = "slds-required">*</abbr>Community:<c:lookupReusableChild aura:id='communityfield' sobjectType="Community__c" queryFields="Id, Name, Division__c" searchFilter1="Name" enableLookup = "true" isDefault = "true" filter1="Active__c"  filter1value="true" filter2="Division__c"  filter2value="{!v.divId}" isIcon="true" iconName="custom:custom47" /><br/> 
+        <ui:inputDate aura:id="datefield" value="{!v.estDate}" label="Target Closing Date:" displayDatePicker="true" format="MM/dd/yyyy" required="true" />
+    </div>
+    <lightning:layout horizontalAlign="center" class="slds-m-top_large">
+        <lightning:button variant="neutral" label="Cancel" title="Cancel" type="text" onclick="{!c.closeaction}" />
+        <lightning:button variant="brand" label="Create" title="Create" type="submit" onclick="{! c.handleSave }"/>
+    </lightning:layout>
+    
+</aura:component>

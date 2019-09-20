@@ -1,0 +1,34 @@
+<aura:component implements="flexipage:availableForAllPageTypes,force:hasRecordId,force:lightningQuickAction" access="global" Controller="CancelScenario">
+    <aura:attribute name="ScenarioDetails" type="Scenario__c" default="{ 'sobjectType': 'Scenario__c'}"/>
+    <aura:handler name = "init" value="{!this}" action="{!c.doinit}"/> 
+    <aura:attribute name="showFOrm" type="boolean" default="false"/>
+    <aura:if isTrue="{!v.showFOrm}">
+        <div class="slds-card" style="padding-top: 7px;padding-bottom: 7px;">
+            <lightning:layout multipleRows="true" class="ButtonsLayout">
+                <lightning:layoutItem size="6" class="QuoteButtons">
+                    <div class="custom-box"><c:EditLines recordId ="{!v.recordId}"/></div>
+                </lightning:layoutItem>
+                <aura:if isTrue="{!v.ScenarioDetails.Lot__c}">
+                    <lightning:layoutItem size="6" class="QuoteButtons">
+                        <div class="custom-box"><c:incentives recordId ="{!v.recordId}"/></div>
+                    </lightning:layoutItem>
+                </aura:if>                 
+                <aura:if isTrue="{!and(v.ScenarioDetails.RecordType.DeveloperName != 'Spec_Quote')}">
+                    <lightning:layoutItem size="6" class="QuoteButtons">
+                        <div class="custom-box"><lightning:button class="btnWidth" variant="brand" label="Selection Report" title="Selection Report" onclick="{!c.selectionReport}" /></div>
+                    </lightning:layoutItem>
+                </aura:if>
+                <aura:if isTrue="{!and(v.ScenarioDetails.RecordType.DeveloperName != 'Spec_Quote', v.ScenarioDetails.Status__c == 'Approved')}">
+                    <lightning:layoutItem size="6" class="QuoteButtons">
+                        <div class="custom-box"><c:CancelScenario recordId ="{!v.recordId}"/></div>
+                    </lightning:layoutItem>
+                </aura:if>   
+                <aura:if isTrue="{!and(v.ScenarioDetails.RecordType.DeveloperName != 'Spec_Quote', v.ScenarioDetails.Status__c == 'Approved')}">
+                    <lightning:layoutItem size="6" class="QuoteButtons">
+                        <div class="custom-box"><c:TransferLot recordId ="{!v.recordId}"/></div>
+                    </lightning:layoutItem>
+                </aura:if>
+            </lightning:layout>            
+        </div>
+    </aura:if> 
+</aura:component>

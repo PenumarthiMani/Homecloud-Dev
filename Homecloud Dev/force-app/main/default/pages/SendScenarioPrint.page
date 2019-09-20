@@ -1,0 +1,34 @@
+<apex:page controller="SendScenarioPrintController" lightningStylesheets="true">
+    
+    <style>
+        .mailbody ~ .cke_browser_webkit{width:50%;}
+    </style>
+    <apex:slds />
+    <apex:pageMessages />
+    <apex:form >    
+        <apex:pageBlock >
+            <apex:pageBlockSection columns="1">
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel >Subject</apex:outputLabel>
+                    <apex:inputText value="{!subject}" size="100" style="border-left: 3px solid #c00;"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel >To</apex:outputLabel>
+                    <apex:inputText value="{!toAddress}" size="57" style="border-left: 3px solid #c00;"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel >Cc</apex:outputLabel>
+                    <apex:inputTextArea value="{!ccAddress}" rows="5" style="width:49.5%"/>
+                </apex:pageBlockSectionItem>
+                <apex:pageBlockSectionItem >
+                    <apex:outputLabel >Body</apex:outputLabel>
+                    <apex:inputTextarea richText="true" styleClass="mailbody" value="{!body}"/>
+                </apex:pageBlockSectionItem>           
+            </apex:pageBlockSection>
+            <center>     
+                <apex:commandButton value="Send" action="{!sendEmail}" styleClass="slds-button slds-button_brand" />
+                <apex:commandButton value="Cancel" action="{!cancel}" immediate="true"/>  
+            </center>
+        </apex:pageBlock>
+    </apex:form>
+</apex:page>

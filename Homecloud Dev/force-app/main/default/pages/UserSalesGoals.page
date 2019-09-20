@@ -1,0 +1,239 @@
+<apex:page controller="SalesGoals"> 
+    <html xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+  <script src="https://code.jquery.com/jquery-1.11.1.min.js"></script>
+ <apex:slds />
+
+ <apex:form styleClass="slds" id="formId">
+    <apex:pageBlock mode="maindetail">    
+      <div class="slds-grid slds-grid_align-center">
+         <div>
+             <div class="slds-form-element">
+                 <label class="slds-form-element__label">User</label> 
+                    <div class="slds-form-element__control">
+                     
+                                                                     
+                              <!-- lookUp pill div : Connection -->
+                              <div class="slds-pill_container slds-show" id="CnnSelectedRec" style="display: none;">
+                                  <a class="slds-pill" href="javascript:void(0)">
+                                      <svg aria-hidden="true" class="slds-icon slds-icon-standard-user slds-icon--small">
+                                          <use xlink:href="{!URLFOR($Resource.SLDSv0122, '/assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>
+                                      </svg>              
+                                      <img class="slds-icon slds-icon-standard-account slds-pill__icon" id="select-image" style="display: none;"/>
+                                      <span class="slds-pill__label" id="cnn-name">American Red Cross(pospect)</span>
+                                      <button style="margin-top: 0px;" class="slds-button slds-button--icon-bare slds-pill__remove" onclick="removeRecord('CnnSelectedRec', 'CnnLookUp', 'CnnlookUpTextDivsn')" type="button"><img src="{!URLFOR ($Resource.SLDSv0122, '/assets/icons/utility/close_60.png')}" class="slds-button__icon"></img>
+                                          <span class="slds-assistive-text">Remove</span>
+                                      </button>
+                                  </a>
+                              </div>  
+                        
+                              <!--  lookUp Input div : Connection -->             
+                              <div class="slds-form-element__control slds-input-has-icon slds-input-has-icon--right" id="CnnlookUpTextDivsn" >
+                                  <svg aria-hidden="true" class="slds-input__icon">
+                                      <use xlink:href="{!URLFOR ($Resource.SLDSv0122, 'assets/icons/utility-sprite/svg/symbols.svg#search')}"></use>
+                                  </svg>                              
+                                  <input autocomplete="off" id="CnnLookUp" value="" class="slds-input" type="text" aria-autocomplete="list" role="combobox" aria-expanded="false" aria-activedescendant=""  /><!-- onFocus="focusedOn(this);" -->
+                              </div> 
+                                
+                              <!--  lookUp drop down list div : Connection -->        
+                              <div class="slds-lookup__menu" role="listbox" id="CnnResult" style="display:none;">
+                                  
+                                  <ul class="slds-lookup__list lookup_Conection" role="presentation" id="ui_CnnResult"/>                                    
+                              </div>
+                     
+                     <!-- <apex:selectList value="{!selectedUser}" size="1" styleClass="slds-input">
+                      <apex:selectOptions value="{!UserList}"></apex:selectOptions>
+                      <apex:actionSupport event="onchange" action="{!searchSales}" reRender="formId"/>   
+                    </apex:selectList> -->
+                       
+              </div></div>
+            </div>
+            <div>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;</div>
+            <div>     
+              <div class="slds-form-element">
+              <label class="slds-form-element__label">Year</label> 
+                <div class="slds-form-element__control">
+                <apex:selectList value="{!selectedYear}" size="1" styleClass="slds-input">
+                    <apex:selectOptions value="{!Years}"/>
+                   <apex:actionSupport event="onchange" action="{!searchSales}" reRender="pBlock,btnsPnl"/> 
+              </apex:selectList>
+                 </div></div>
+          </div>
+         </div><br/><br/>
+         <apex:outputpanel id="btnsPnl">
+         <div class="slds-grid slds-grid_align-center">  
+             
+               <apex:commandButton styleClass="slds-button slds-button_brand" value="Edit" action="{!editMethod}" rendered="{!!toShowInputFields}" reRender="pBlock,btnsPnl"/> 
+               <apex:commandButton styleClass="slds-button slds-button_brand" value="Save" action="{!saveMethod}" rendered="{!toShowInputFields}" reRender="pBlock,btnsPnl"/>  
+               <apex:commandButton styleClass="slds-button slds-button_brand" value="Cancel" action="{!cancelMethod}" rendered="{!toShowInputFields}" reRender="pBlock,btnsPnl"/>  
+
+         </div> 
+            </apex:outputpanel>
+      </apex:pageBlock> 
+      <apex:pageBlock id="pBlock"> 
+        <apex:pageBlockTable value="{!SalesList}" var="sal" rendered="{!!toShowInputFields}">
+            <apex:column headervalue="Date">
+                <apex:outputText value="{0,date,MMMM}">
+                     <apex:param value="{!sal.Date__c}"/>
+                </apex:outputText> 
+            </apex:column>
+            <apex:column headervalue="Actuals" value="{!sal.Actuals__c}"/>
+            <apex:column headervalue="Goal" value="{!sal.Goal__c}"/>
+        </apex:pageBlockTable>
+         <apex:pageBlockTable value="{!SalesList}" var="sal" rendered="{!toShowInputFields}" width="100%">
+            <apex:column headervalue="Date" width="30%">          
+               <apex:outputText value="{0,date,MMMM}">
+                     <apex:param value="{!sal.Date__c}"/>
+                </apex:outputText> 
+     
+            </apex:column>
+            <apex:column headervalue="Actuals" width="30%"><apex:outputField styleClass="slds-input" value="{!sal.Actuals__c}"/></apex:column>
+            <apex:column headervalue="Goal" width="30%"><apex:inputField styleClass="slds-input" value="{!sal.Goal__c}"/>
+            </apex:column>
+        </apex:pageBlockTable>
+        
+        
+    </apex:pageBlock>
+    <apex:inputHidden value="{!selectedUser}" id="hidenUsrId"/>
+     <apex:actionFunction name="doSearchByUser" action="{!searchSales}" reRender="pBlock,btnsPnl" > 
+     <apex:param assignTo="{!selectedUser}" value="" name="usrId"/>
+     </apex:actionFunction>
+ 
+  </apex:form>  
+   
+   
+   <script>        
+         function srchByUser(userId){
+         console.log(userId);
+            doSearchByUser(userId);
+            
+         }
+
+        $(document).ready(function() 
+         {  
+         
+            
+            $('#CnnLookUp').keyup(function(e) 
+            {                   
+
+                if($('#CnnLookUp').val().length>0){ 
+                    $('#CnnResult').css("display","block");
+                    $('#CnnLookUp').attr('aria-expanded','true'); 
+                    // $('#conecKey').html($('#CnnLookUp').val());
+                     Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.SalesGoals.getUsers}',
+                    $('#CnnLookUp').val(),                                                 
+                    function(result, event){
+                    if (event.status) {
+                    $('#ui_CnnResult').empty();
+                    populateCnnLookup(result);
+                    } else if (event.type === 'exception') {
+                    $('#CnnLookUp') = 'ERROR: ' + event.message;   
+                    } else {
+                    $('#CnnLookUp') = 'ERROR: ' + event.message;
+                    }
+                    }, 
+                    {escape: true}
+                    ); 
+                }
+                else {
+                     $('#CnnResult').css("display","none");
+                }
+           
+            });   
+            //This FUNCTION also invoked in page load
+            function populateCnnLookup(result){
+                 if(result){                        
+                        $( result ).each(function() {                        
+                            console.log(this);
+                            $('#ui_CnnResult').append('<li class="slds-lookup__item">' + 
+                                    '<a id="' + this.Id + '" href="javascript:void(0)" role="option" >' + 
+                                      '<svg aria-hidden="true" class="slds-icon slds-icon-standard-user slds-icon--small">' + 
+                                        '<use xlink:href="{!URLFOR ($Resource.SLDSv0122, '/assets/icons/standard-sprite/svg/symbols.svg#user')}"></use>' + 
+                                      '</svg>' + this.Name+'</a>' + 
+                                  '</li>');
+                        });
+                
+                $('ul.lookup_Conection a').click(function(e) 
+                    {       
+                        console.log('--usr id---')
+                        console.log($(this)[0].id);   
+                        $('#CnnLookUp').val('');                    
+                        
+                        //$('#CnnLokUpId').val($(this)[0].id);
+                        //$('#CnnLokUpName').val( $('#'+$(this)[0].id).text());   
+                        $('#CnnLookUp').attr('aria-activedescendant',$(this)[0].id);
+                        
+                        $('#CnnLookUp').attr('aria-expanded','false');
+                        $('#CnnResult').css("display","none");
+                        
+                        
+                        $('#cnn-name').html($('#'+$(this)[0].id).text());
+                        
+                        $('#CnnSelectedRec').css("display","block");
+                        $('#CnnlookUpTextDivsn').css("display","none");
+                        $('#CnnLookUp').css("display","none");
+                        
+                        srchByUser($(this)[0].id);
+                    }); 
+                }   
+        }
+        
+        
+        function doPopulateCurrentUser(){
+            
+            console.log('--user ID--');
+            console.log('{!$User.Id}');
+            
+                 Visualforce.remoting.Manager.invokeAction(
+                    '{!$RemoteAction.SalesGoals.getCurrentUserInfo}',
+                                                                    
+                    function(result, event){
+                    if (event.status) {
+                    $('#ui_CnnResult').empty();
+                    console.log(result);
+                    if(result.Name!=undefined && result.Name!=''){
+                       
+                        console.log('----Name ----');
+                        console.log(result.Name);
+                        
+                        $('#CnnLookUp').css("display","none");
+                        $('#CnnlookUpTextDivsn').css("display","none");
+                        
+                        
+                        var originalTxt = $('#cnn-name').html(result.Name);
+                        
+                        console.log('--originalTxt-- '+originalTxt);
+                        $('#CnnSelectedRec').css("display","block");
+                        
+                    }
+                    if(result.Id!=undefined && result.Id!=''){
+                         //$('#CnnLokUpId').val(result.ConnectionId);
+                         
+                    }
+                    
+                    
+                    } else if (event.type === 'exception') {
+                    $('#CnnLookUp') = 'ERROR: ' + event.message;   
+                    } else {
+                    $('#CnnLookUp') = 'ERROR: ' + event.message;
+                    }
+                    }, 
+                    {escape: true}
+                    );
+        
+        }
+        
+        doPopulateCurrentUser();
+        });
+        
+    function removeRecord(lookUpPill, inputTextId, lookUpDivsn){
+        //console.log(lookUpPill);
+         document.getElementById(lookUpPill).style.display = "none";
+          document.getElementById(inputTextId).style.display = "block";
+          document.getElementById(lookUpDivsn).style.display = "block"; 
+        //alert({!toShowInputFields});
+        doSearchByUser('{!$User.Id}');
+    }
+        </script>
+      </html>
+</apex:page>

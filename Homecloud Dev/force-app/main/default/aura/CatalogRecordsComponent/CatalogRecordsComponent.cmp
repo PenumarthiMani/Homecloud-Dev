@@ -1,0 +1,159 @@
+<aura:component controller="CatalogController" implements="force:hasRecordId,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome" access="global">
+    
+    <aura:attribute name="catalogrecs" type="Object"/>
+    
+    <aura:attribute name="recordtype" type="string"/>
+    <aura:attribute name="recordId" type="string"/>
+    <aura:attribute name="recordtypeId" type="string"/>
+    <aura:attribute name="Searchstringval" type="string"/>
+    <aura:attribute name="sortopt" type="string" default="asc"/>
+    <aura:attribute name="sortfield" type="string" default="Name"/>
+    
+    <aura:attribute name="iseditable" type="boolean" default="true"/>
+    <aura:attribute name="isdeleteable" type="boolean" default="false"/>
+    <aura:attribute name="hasobjectpermission" type="boolean" default="true"/>
+    <aura:attribute name="displayspinner" type="boolean" default="true"/>
+    <aura:attribute name="hasnext" type="boolean" default="true"/>
+    <aura:attribute name="hasprevious" type="boolean" default="false"/>
+    
+    <aura:attribute name="countofrecords" type="Integer"/>
+    <aura:attribute name="Searchcountofrecords" type="Integer"/>
+    <aura:attribute name="TotalSearchcountofrecords" type="Integer"/>
+    <aura:attribute name="offsetcount" type="Integer" default="0"/>
+    <aura:attribute name="limitcount" type="Integer" default="10"/>
+    
+    <aura:handler name="init" value="{!this}" action="{!c.initilize}"/>
+     
+    
+    
+    <aura:attribute name="columns" type="List"/>
+    <article class="slds-card slds-card_boundary related_list_card_border_top forceRelatedListCardDesktop ">
+        <div class="related_list_themed_border_top" >
+            <aura:if isTrue="{!v.hasobjectpermission}">
+            <lightning:card title="{!(v.recordtype + '  ('+v.countofrecords+')')}" iconName="custom:custom22" >
+                <aura:set attribute="actions">
+                    <lightning:input aura:id="searchst" name="input1" label="Search Here"  onchange="{!c.onchangesearchval}"/>
+                    <!--{!v.hasprevious}-->
+                    <aura:if isTrue="{!v.hasprevious}"> 
+                        <a onclick="{!c.clickprevious}">Previous</a> 
+                        <aura:set attribute="else"> Previous
+                        </aura:set>
+                    </aura:if> 
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                    {!v.Searchcountofrecords} / {!v.TotalSearchcountofrecords}
+                    &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; 
+                    <!--{!v.hasnext} -->
+                    <aura:if isTrue="{!v.hasnext}">
+                        <a onclick="{!c.clicknext}">Next</a>
+                        <aura:set attribute="else"> Next
+                        </aura:set>
+                    </aura:if> 
+                </aura:set>
+            <!--    hasnext:{!v.hasnext} <br/>
+                hasprevious:{!v.hasprevious}<br/>
+                countofrecords:{!v.countofrecords}<br/>
+                Searchcountofrecords:{!v.Searchcountofrecords}<br/>
+                TotalSearchcountofrecords:{!v.TotalSearchcountofrecords}<br/>
+                offsetcount:{!v.offsetcount}<br/>
+                limitcount:{!v.limitcount}<br/>
+                sortopt:{!v.sortopt}<br/>
+                sortfield:{!v.sortfield}<br/>
+                Searchstringval:{!v.Searchstringval}<br/>  -->
+                <aura:if isTrue="{!v.displayspinner}">
+                    <lightning:spinner alternativeText="Loading" size="medium"  />
+                    <aura:set attribute="else">
+                        <div style="height: 500px" class="setcenter"> <!-- class="forceRecordLayout slds-table slds-no-row-hover slds-table_cell-buffer slds-table_fixed-layout uiVirtualDataGrid-default uiVirtualDataGrid slds-table–header-fixed_container " -->
+                        <aura:if isTrue="{!v.Searchcountofrecords!=0}">
+                            <lightning:datatable  class=" setcenter forceRecordLayout slds-table slds-no-row-hover  slds-table_fixed-layout uiVirtualDataGrid-default uiVirtualDataGrid slds-table–header-fixed_container"
+                                             columns="{! v.columns }"
+                                             data="{! v.catalogrecs }"
+                                             keyField="id"
+                                             hideCheckboxColumn="true"
+                                                 onsort="{!c.sortdirection}"
+                                             onrowaction="{!c.onrowsel}"
+                                                 />
+                            <aura:set attribute="else">
+                                <br/><br/>
+                                <p style="text-align:center;font-size:17px;font-weight:bold">Don't have Enough records to display for the search criteria.</p>
+                            </aura:set>
+                            <br/>
+                            <p><lightning:formattedText value="{! 'Search Record Count : '+ v.Searchcountofrecords}" /></p>
+                            </aura:if>
+                        </div>
+                    </aura:set>
+                </aura:if>
+
+            </lightning:card>
+                <aura:set attribute="else">	<br/>
+                    <span style="text-align:center;padding-left:10%;font-weight: bold;">Sorry You Don't have Level of access to view the {!(v.recordtype + ' Records')} </span> <br/>
+                    </aura:set>
+            </aura:if>
+        </div>
+    </article>
+    
+    <!-- hold for some time 
+    <article class="slds-card slds-card_boundary related_list_card_border_top forceRelatedListCardDesktop ">
+        <div class="related_list_themed_border_top">
+            <lightning:card title="{!(v.recordtype + ' Records  ('+v.countofrecords+')')}" iconName="custom:custom22" >
+                
+                <aura:if isTrue="{!v.hasobjectpermission}">
+                    <div style="overflow-y: scroll;height:200px;" class="slds-card__header slds-grid">
+                        <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                            <thead>
+                                <tr class="slds-line-height_reset">
+                                    <th class="slds-text-title_caps" scope="col">
+                                        <div class="slds-truncate" title="Action">Action</div>
+                                    </th>
+                                    <th class="slds-text-title_caps" scope="col">
+                                        <div class="slds-truncate" title="Name">Name</div>
+                                    </th>
+                                    <th class="slds-text-title_caps" scope="col">
+                                        <div class="slds-truncate" title="Community">Community</div>
+                                    </th>
+                                    <th class="slds-text-title_caps" scope="col">
+                                        <div class="slds-truncate" title="ProductCode">ProductCode</div>
+                                    </th>
+                                    <th class="slds-text-title_caps" scope="col">
+                                        <div class="slds-truncate" title="Action">Action</div>
+                                    </th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <aura:iteration items="{!v.catalogrecs}" var="f"  indexVar="i">
+                                    <tr class="slds-hint-parent">
+                                        <th data-label="Number" scope="row">
+                                            
+                                            <lightning:buttonIcon iconName="utility:edit"  value="{!f.Id}" disabled="{!!v.iseditable}" variant="bare" onclick="{! c.handleedit }" alternativeText="edit" size="large"/>&nbsp;
+                                            <lightning:buttonIcon iconName="utility:delete" value="{!f.Id}" disabled="{!!v.isdeleteable}" variant="bare" onclick="{! c.handledelete }" alternativeText="delete" size="large"/>
+                                        </th>
+                                        <th data-label="Number" scope="row">
+                                            <div class="slds-truncate" title="Cloudhub"><lightning:formattedText value="{!f.Name}"/></div>
+                                        </th>
+                                        <th data-label="Number" scope="row">
+                                            <div class="slds-truncate" title="Cloudhub"><lightning:formattedText value="{!f.Community__r.Name}"/></div>
+                                        </th>
+                                        <td data-label="Attachment Title">
+                                            <div class="slds-truncate" title="Attachment Title"><lightning:formattedText value="{!f.ProductCode__c}"/></div>
+                                        </td>
+                                        <td data-label="Action">
+                                            <lightning:buttonMenu aura:id="menu" onselect="{! c.handleSelect }" alternativeText="Show menu">
+                                                <lightning:menuItem value="{!f.Id}" label="Edit" disabled="{!!v.iseditable}" />
+                                                <lightning:menuItem value="{!f.Id}" label="Delete" />
+                                            </lightning:buttonMenu>
+                                        </td>
+                                    </tr>
+                                </aura:iteration>  
+                            </tbody>
+                        </table>
+                    </div>
+                    <aura:set attribute="else">	
+                        <span style="text-align:center;padding-left:10%;font-weight: bold;">Sorry You Don't have Level of access to view the {!(v.recordtype + ' Records')} </span>
+                    </aura:set>
+                    
+                </aura:if>
+            </lightning:card>
+        </div>
+    </article>    -->
+    <!-- To display the Success or Error messages use below-->
+    <lightning:notificationsLibrary aura:id="notifLib"/>
+</aura:component>

@@ -1,0 +1,88 @@
+<aura:component implements="force:lightningQuickAction,lightning:actionOverride,force:hasSObjectName,force:hasRecordId,lightning:isUrlAddressable" controller="connectionscenario" >
+<aura:handler name="init" value="{!this}" action="{!c.doInit}"/>
+<aura:attribute name="recordId2" type="Id"/>
+    <aura:attribute name="scenariodata" type="Scenario__c"/>
+<aura:attribute name="contactid" type="Id"/>
+<aura:attribute name="isModalOpen" type="boolean" default="false"/>
+    <aura:attribute name="isModal" type="boolean" default="true"/>
+<lightning:workspaceAPI aura:id="workspace"/>
+<aura:if isTrue="{!v.isModal}">
+<aura:if  isTrue="{!v.recordId2 != NULL}" >
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aura:id="Modalbox" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+        <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                        onclick="{! c.cancel }"
+                                        alternativeText="close"
+                                        variant="bare-inverse"
+                                        class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">New Connection</h2>
+        </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning:recordEditForm aura:id="recordEditForm" 
+                                              onsubmit="{!c.onSubmit}"
+                                              onsuccess="{!c.handleSubmit}"
+                                              objectApiName="Connection__c">
+                    <lightning:messages />
+                    
+                    <lightning:inputField aura:id="myAtt1" fieldName="Homebuyer__c" value="{!v.recordId2}" disabled="true" />
+                    <lightning:inputField fieldName="Division__c" />
+                    <lightning:inputField aura:id="myAtt" fieldName="Community__c" />
+                    <lightning:inputField fieldName="Status__c" />
+                    <lightning:inputField fieldName="Estimated_Close_Date__c" />
+                <!--<button class="slds-button slds-button_neutral">Cancel</button>-->
+                    <center><lightning:button class="slds-button slds-button_brand" type="submit" label="Save" />                    
+                     <lightning:button class="slds-button slds-button_neutral" label="Cancel"  onclick="{! c.cancel}" /></center>
+                   
+               </lightning:recordEditForm>
+            </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" aura:id="Modalbackdrop"></div>
+        <!--<aura:set attribute="else">
+            <ui:message title="Error" severity="error" closable="false">
+                Something went wrong!
+            </ui:message>
+        </aura:set>-->
+</aura:if>
+<aura:set attribute="else">
+    <aura:if  isTrue="{!v.recordId2 != NULL}" >
+        <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aura:id="Modalbox" aria-modal="true" aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+        <div class="slds-modal__container">
+        <header class="slds-modal__header">
+                <lightning:buttonIcon iconName="utility:close"
+                                        onclick="{! c.cancel }"
+                                        alternativeText="close"
+                                        variant="bare-inverse"
+                                        class="slds-modal__close"/>
+                <h2 id="modal-heading-01" class="slds-modal__title slds-hyphenate">New Scenario</h2>
+        </header>
+                <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                    <lightning:recordEditForm aura:id="recordEditForm" 
+                                              onsuccess="{!c.handleSubmit}"
+                                              objectApiName="Scenario__c">
+                    <lightning:messages />
+                    <lightning:inputField fieldName="Connection__c" value="{!v.scenariodata.Name}" disabled="true"/>
+                    <lightning:inputField fieldName="Homebuyer__c" value="{!v.scenariodata.Homebuyer__c}" disabled="true"/>
+                    <lightning:inputField fieldName="Division__c" value="{!v.scenariodata.Division__c}" disabled="true"/>
+                    <lightning:inputField fieldName="Community__c" value="{!v.scenariodata.Community__c}" disabled="true"/>
+                    <lightning:inputField fieldName="Status__c" disabled="true"/>    
+                    <lightning:inputField fieldName="Target_Closing_Date__c" />    
+                    <!--<button class="slds-button slds-button_neutral">Cancel</button>-->
+                    <lightning:button class="slds-button slds-button_brand" type="submit" label="Save" />                    
+                     <lightning:button class="slds-button slds-button_neutral" label="Cancel"  onclick="{! c.cancel}" />
+                   
+               </lightning:recordEditForm>
+            </div>
+            </div>
+        </section>
+        <div class="slds-backdrop slds-backdrop_open" aura:id="Modalbackdrop"></div>
+        <!--<aura:set attribute="else">
+            <ui:message title="Error" severity="error" closable="false">
+                Something went wrong!
+            </ui:message>
+        </aura:set>-->
+</aura:if>
+    </aura:set>    
+    </aura:if>
+</aura:component>

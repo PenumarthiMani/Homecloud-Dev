@@ -1,0 +1,74 @@
+<aura:component controller="TransferLot"
+    implements="flexipage:availableForAllPageTypes,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickActionWithoutHeader"
+    access="global">
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="Custommessage" type="String" />
+    <aura:attribute name="ProductID" type="String" />
+    <aura:attribute name="quote" type="Scenario__c" />
+    <aura:attribute name="Spinner" type="boolean" default="false"/>
+    <aura:attribute name="Cancel" type="list" />
+    <aura:attribute name="isOpen" type="boolean" default="false" />
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}" />
+    <aura:handler name="lookupEvent" event="c:lookupEvent" action="{!c.lookupEvent}" />
+    <lightning:button class="btnWidth" variant="brand" label="Transfer Lot" title="Transfer Lot"
+        onclick="{!c.openModel}" />
+    <aura:if isTrue="{!v.isOpen}">
+           
+        <div class="slds-m-around_xx-large">
+            
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                        <aura:if isTrue="{!v.Spinner}">
+                                <div aura:id="spinnerId" class="slds-spinner_container">
+                                    <div class="slds-spinner--brand  slds-spinner slds-spinner--large slds-is-relative" role="alert">
+                                        <span class="slds-assistive-text">Loading</span>
+                                        <div class="slds-spinner__dot-a"></div>
+                                        <div class="slds-spinner__dot-b"></div>
+                                    </div>
+                                </div>
+                            </aura:if>
+                    <header class="slds-modal__header">
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Transfer Lot</h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                        <div>
+                            <div class="slds-notify_container" style="display:none;" id="errordiv">
+                                <div class="slds-notify slds-notify--alert slds-theme--error slds-theme--alert-texture"
+                                    role="alert">
+
+                                    <span class="slds-assistive-text">Error</span>
+                                    <h2>
+                                        <c:svgIcon class="slds-icon slds-icon--small slds-m-right--x-small"
+                                            svgPath="{!$Resource.SLDSv0122 + '/assets/icons/utility-sprite/svg/symbols.svg#ban'}" />
+                                        {!v.Custommessage}</h2>
+                                </div>
+                            </div><br />
+                            Select Lot
+                            <c:lookupReusableChild aura:id="lotid" sobjectType="Catalog__c"
+                                queryFields="Id,Name,Community__c" searchFilter1="Name" searchFilter2=""
+                                searchFilter3="" filter1="Community__c" filter1value="{!v.quote.Community__c}"
+                                filter2="RecordType.DeveloperName" filter2value="Lot" filter3="Id"
+                                filter3value="{!v.quote.Lot__c}" />
+
+                            <div class="slds-modal__content slds-p-around_large" id="modal-content-id-1">
+                                <ui:inputSelect label="Previous Lot Status" value="{!v.quote.Cancel_Reason__c }">
+                                    <aura:iteration items="{!v.Cancel}" var="item">
+                                        <ui:inputSelectOption label="{!item.labelval}" text="{!item.selectedVal}" />
+                                    </aura:iteration>
+                                </ui:inputSelect>
+                            </div>
+                        </div>
+                        <br />
+                    </div>
+                    <footer class="slds-modal__footer">
+                        <lightning:button variant="neutral" label="Save" title="Save" onclick="{!c.upsertQuote}"
+                            disabled="{!if(v.quote.Cancelled__c, true, false)}" />
+                        <lightning:button variant="neutral" label="Cancel" title="Cancel" onclick="{!c.closeModel}" />
+                    </footer>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </div>
+    </aura:if>
+</aura:component>

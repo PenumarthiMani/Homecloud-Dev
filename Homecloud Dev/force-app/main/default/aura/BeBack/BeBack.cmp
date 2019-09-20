@@ -1,0 +1,15 @@
+<aura:component Controller="BeBackCreation" implements="force:lightningQuickAction,force:hasRecordId" >
+	<aura:attribute name = "recordId" type="string"/>
+    <aura:attribute name="Message" type="String"/>
+    <aura:attribute name="StyleClass" type="String" default=""/>
+    <aura:attribute name="headerValue" type="String"/>
+    <aura:handler name="init" value="{!this}" action="{!c.doinit}"/>
+    <div>
+    	<header class="{!v.StyleClass}">
+        <h2 class="slds-text-heading_medium" id="prompt-heading-id">{!v.headerValue}</h2>
+        </header>
+    	<div class="divStyle" id="prompt-message-wrapper">
+            {!v.Message}
+        </div>
+    </div>
+</aura:component>

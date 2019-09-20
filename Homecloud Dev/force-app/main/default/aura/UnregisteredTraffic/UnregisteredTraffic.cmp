@@ -1,0 +1,38 @@
+<aura:component controller="UnregisteredTrafficController"  implements="force:appHostable,force:hasSObjectName,lightning:actionOverride,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId" access="global" >
+    <aura:attribute name="recordtypeid" type="string"/>
+    <aura:attribute name="recordId" type="String" />
+    <aura:attribute name="today" type="Date" />
+    <aura:handler name="init" action="{!c.doInit}" value="{!this}"/>
+    
+    <div class="slds-p-top_xx-large " style="padding-left:20%;padding-right:20%;">
+        <article class="slds-card " style="padding-left:8%;padding-right:8%;padding-top:3%">
+            <div class="slds-card__header slds-grid" >
+                <header class="slds-media slds-media_center slds-has-flexi-truncate">
+                    <div class="slds-col "> 
+                        <div class="slds-text-heading_large slds-align_absolute-center" style="padding-bottom:2%">Create Unregistered Traffic</div>
+                        
+                        <div class="slds-p-horizontal--small  ">
+                            <lightning:recordEditForm aura:id="recordEditForm"  
+                                                      objectApiName="Traffic__c" 
+                                                      recordTypeId="{!v.recordtypeid}"
+                                                      onsuccess="{!c.handleSuccess}">
+                                <!-- the messages component is for error messages -->
+                                <lightning:messages />
+                                
+                                <lightning:inputField fieldName="Community__c" />
+                                <lightning:inputField fieldName="Count__c" />
+                                <lightning:inputField fieldName="Traffic_Date__c" value="{!v.today}" />
+                                
+                                <div class="slds-m-top_medium slds-align_absolute-center" style="padding-top:2%;padding-bottom:2%">
+                                    <lightning:button class="slds-m-top_small " type="submit" label="Save" />
+                                    <lightning:button class="slds-m-top_small " label="Cancel"  onclick="{! c.cancel}" />
+                                </div>
+                            </lightning:recordEditForm>
+                            <lightning:navigation aura:id="navService"/>
+                        </div>
+                    </div>
+                </header>
+            </div>
+        </article>
+    </div>
+</aura:component>
